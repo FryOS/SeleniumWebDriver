@@ -18,7 +18,7 @@ namespace SeleniumTests
         public void SetupTest()
         {
             //driver = new FirefoxDriver();
-            baseURL = "http://localhost:8080/litecart/en/";
+            baseURL = "http://localhost:8080/litecart/";
             verificationErrors = new StringBuilder();
             driver = new FirefoxDriver(@"C:\distr");
         }
@@ -40,11 +40,11 @@ namespace SeleniumTests
         [Test]
         public void TheUntitledTestCaseTest()
         {
-            driver.Navigate().GoToUrl(baseURL);
-            driver.FindElement(By.Name("query")).Click();
-            driver.FindElement(By.Name("query")).Clear();
-            driver.FindElement(By.Name("query")).SendKeys("duck");
-            driver.FindElement(By.Name("search_form")).Submit();
+            driver.Navigate().GoToUrl(baseURL + "admin");
+            driver.FindElement(By.Name("username")).SendKeys("admin");
+            driver.FindElement(By.Name("password")).SendKeys("admin");           
+            driver.FindElement(By.Name("login")).Submit();            
+
         }
         private bool IsElementPresent(By by)
         {
