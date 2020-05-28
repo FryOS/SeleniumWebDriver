@@ -7,7 +7,7 @@ using OpenQA.Selenium.Firefox;
 namespace SeleniumTests
 {
     [TestFixture]
-    public class UntitledTestCase
+    public class TestsLitecart
     {
         private IWebDriver driver;
         private StringBuilder verificationErrors;
@@ -17,10 +17,10 @@ namespace SeleniumTests
         [SetUp]
         public void SetupTest()
         {
-            //driver = new FirefoxDriver();
+            driver = new FirefoxDriver();
             baseURL = "http://localhost:8080/litecart/";
             verificationErrors = new StringBuilder();
-            driver = new FirefoxDriver(@"C:\distr");
+            //driver = new FirefoxDriver(@"C:\distr");
         }
 
         [TearDown]
@@ -38,7 +38,7 @@ namespace SeleniumTests
         }
 
         [Test]
-        public void TheUntitledTestCaseTest()
+        public void Test_LoginAdminPart()
         {
             driver.Navigate().GoToUrl(baseURL + "admin");
             driver.FindElement(By.Name("username")).SendKeys("admin");
