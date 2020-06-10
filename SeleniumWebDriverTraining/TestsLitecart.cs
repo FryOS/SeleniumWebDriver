@@ -86,6 +86,22 @@ namespace SeleniumTests
 
         }
 
+        [Test]
+        public void Test_CheckSticker()
+        {
+            driver.Navigate().GoToUrl(baseURL);
+            Thread.Sleep(1000);
+            var lis = driver.FindElements(By.ClassName("product"));
+            foreach (var item in lis)
+            {
+                var stickerCount = item.FindElements(By.CssSelector("a.link>div.image-wrapper>div.sticker")).Count;
+                var isStickerPresent = IsElementPresent(By.CssSelector("a.link>div.image-wrapper>div.sticker"), item);
+                Assert.IsTrue(isStickerPresent);
+                Assert.AreEqual(1, stickerCount);                
+            }           
+
+        }
+
         public static Func<IWebDriver, IWebElement> Condition(By locator)
         {
             return (driver) =>
@@ -119,6 +135,19 @@ namespace SeleniumTests
             try
             {
                 driver.FindElement(by);
+                return true;
+            }
+            catch (NoSuchElementException)
+            {
+                return false;
+            }
+        }
+
+        private bool IsElementPresent(By by, IWebElement element)
+        {
+            try
+            {
+                element.FindElement(by);
                 return true;
             }
             catch (NoSuchElementException)
