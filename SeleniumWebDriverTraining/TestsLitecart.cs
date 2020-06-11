@@ -46,21 +46,15 @@ namespace SeleniumTests
         [Test]
         public void Test_LoginAdminPart()
         {
-            driver.Navigate().GoToUrl(baseURL + "admin");
-            driver.FindElement(By.Name("username")).SendKeys("admin");
-            driver.FindElement(By.Name("password")).SendKeys("admin");
-            driver.FindElement(By.Name("login")).Submit();
+            LoginAdminPart();
 
         }
 
         [Test]
         public void Test_ClickOnMenuItems()
         {
-            driver.Navigate().GoToUrl(baseURL + "admin");
-            driver.FindElement(By.Name("username")).SendKeys("admin");
-            driver.FindElement(By.Name("password")).SendKeys("admin");
-            driver.FindElement(By.Name("login")).Submit();
-           
+            LoginAdminPart();
+
             var uls = driver.FindElement(By.Id("box-apps-menu"));
             var lis = uls.FindElements(By.Id("app-"));
 
@@ -69,7 +63,7 @@ namespace SeleniumTests
                 var liItem = driver.FindElements(By.CssSelector("li#app-"));
                 liItem[i].Click();
                 Thread.Sleep(1000);
-                
+
                 var h1s = driver.FindElement(By.Id("content")).FindElements(By.TagName("h1"));
                 var lenthH1 = h1s.Count;
                 Assert.NotZero(lenthH1);
@@ -97,9 +91,27 @@ namespace SeleniumTests
                 var stickerCount = item.FindElements(By.CssSelector("a.link>div.image-wrapper>div.sticker")).Count;
                 var isStickerPresent = IsElementPresent(By.CssSelector("a.link>div.image-wrapper>div.sticker"), item);
                 Assert.IsTrue(isStickerPresent);
-                Assert.AreEqual(1, stickerCount);                
-            }           
+                Assert.AreEqual(1, stickerCount);
+            }
 
+        }
+
+        [Test]
+        public void Test_CheckSortCountries()
+        {
+            LoginAdminPart();
+            driver.Navigate().GoToUrl("http://localhost:8080/litecart/admin/?app=countries&doc=countries");
+            Thread.Sleep(2000);
+
+            
+        }
+
+        public void LoginAdminPart()
+        {
+            driver.Navigate().GoToUrl(baseURL + "admin");
+            driver.FindElement(By.Name("username")).SendKeys("admin");
+            driver.FindElement(By.Name("password")).SendKeys("admin");
+            driver.FindElement(By.Name("login")).Submit();
         }
 
         public static Func<IWebDriver, IWebElement> Condition(By locator)
