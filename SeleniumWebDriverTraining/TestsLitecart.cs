@@ -104,30 +104,96 @@ namespace SeleniumTests
             driver.FindElement(By.Name("password")).SendKeys("admin");
             driver.FindElement(By.Name("login")).Submit();
             driver.Navigate().GoToUrl("http://localhost:8080/litecart/admin/?app=countries&doc=countries");
-            var trRowsCount = driver.FindElements(By.ClassName("row")).Count;
             var trRowElements = driver.FindElements(By.CssSelector("tr> td:nth-child(5)>a"));
             List<string> countries = new List<string>();
             List<string> textContents = new List<string>();
-            
+
             foreach (var trRowElement in trRowElements)
             {
-                var textContent = trRowElement.GetAttribute("text");                
+                var textContent = trRowElement.GetAttribute("text");
                 countries.Add(textContent);
-                textContents.Add(textContent);  
+                textContents.Add(textContent);
             }
             countries.Sort();
             Assert.AreEqual(countries, textContents);
         }
 
+        [Test]
+        public void Test_CheckSortCountriesZoneIfZoneEqual_0()
+        {
+            driver.Navigate().GoToUrl(baseURL + "admin");
+            driver.FindElement(By.Name("username")).SendKeys("admin");
+            driver.FindElement(By.Name("password")).SendKeys("admin");
+            driver.FindElement(By.Name("login")).Submit();
+            driver.Navigate().GoToUrl("http://localhost:8080/litecart/admin/?app=countries&doc=countries");
+            var trRowElements = driver.FindElements(By.CssSelector("tr> td:nth-child(6)"));
+            List<IWebElement> rowNumber = new List<IWebElement>();
+            foreach (var trRowElement in trRowElements)
+            {
+                var textContent = trRowElement.GetAttribute("textContent");
+                if (Int32.Parse(textContent) != 0)
+                {
+                    rowNumber.Add(trRowElement);                    
+                }                
+            }
+            var rowNumberCount = rowNumber.Count;
+
+            foreach (var item in rowNumber)
+            {
+                
+            }
+
+        }
+
+        [Test]
+        public void Test_CheckSortCountriesZone()
+        {
+            driver.Navigate().GoToUrl(baseURL + "admin");
+            driver.FindElement(By.Name("username")).SendKeys("admin");
+            driver.FindElement(By.Name("password")).SendKeys("admin");
+            driver.FindElement(By.Name("login")).Submit();
+            driver.Navigate().GoToUrl("http://localhost:8080/litecart/admin/?app=geo_zones&doc=geo_zones");
+            var trRowElementsA = driver.FindElements(By.CssSelector("tbody .row > td:nth-child(3) > a"));
+            foreach (var item in trRowElementsA)
+            {
+                item.Click();                
+            }
+        }
+
+
+        //б) для тех стран, у которых количество зон отлично от нуля -- 
+        //открыть страницу этой страны и там проверить, что зоны расположены в алфавитном порядке
+
+        //2) на странице http://localhost/litecart/admin/?app=geo_zones&doc=geo_zones
+        //зайти в каждую из стран и проверить, что зоны расположены в алфавитном порядке
 
         [Test]
         public void Test_CheckItem()
         {
             driver.Navigate().GoToUrl(baseURL);
-            var itemName = driver.FindElement(By.XPath("//div[@id='box-campaigns']/div/ul/li/a/div[2]"));
+            var itemName = driver.FindElement(By.CssSelector("#box-campaigns div.name")).GetAttribute("textContent");
+            var itemRegularPrice = driver.FindElement(By.CssSelector("#box-campaigns .regular-price")).GetAttribute("textContent"); 
+            var itemCampaignPrice = driver.FindElement(By.CssSelector("#box-campaigns .campaign-price")).GetAttribute("textContent"); 
+            var elem = driver.FindElement(By.CssSelector("#box-campaigns a.link"));
+            elem.Click();
+            var itemNameMain = driver.FindElement(By.CssSelector("h1.title")).GetAttribute("textContent"); ;
+            var itemRegularPriceMain = driver.FindElement(By.CssSelector(".price-wrapper .regular-price")).GetAttribute("textContent"); 
+            var itemCampaignPriceMain = driver.FindElement(By.CssSelector(".price-wrapper .campaign-price")).GetAttribute("textContent");
+            Assert.AreEqual(itemName, itemNameMain);
+            Assert.AreEqual(itemRegularPrice, itemRegularPriceMain);
+            Assert.AreEqual(itemCampaignPrice, itemCampaignPriceMain);
+
+
 
 
         }
+
+    //а) на главной странице и на странице товара совпадает текст названия товара
+    //б) на главной странице и на странице товара совпадают цены(обычная и акционная)
+    //в) обычная цена зачёркнутая и серая(можно считать, что "серый" цвет это такой, у которого в RGBa представлении одинаковые значения для каналов R, G и B)
+    //г) акционная жирная и красная(можно считать, что "красный" цвет это такой, у которого в RGBa представлении каналы G и B имеют нулевые значения)
+    //(цвета надо проверить на каждой странице независимо, при этом цвета на разных страницах могут не совпадать)
+    //д) акционная цена крупнее, чем обычная(это тоже надо проверить на каждой странице независимо)
 
         public void LoginAdminPart()
         {
