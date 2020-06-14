@@ -133,14 +133,14 @@ namespace SeleniumTests
                 var textContent = trRowElement.GetAttribute("textContent");
                 if (Int32.Parse(textContent) != 0)
                 {
-                    rowNumber.Add(trRowElement);                    
-                }                
+                    rowNumber.Add(trRowElement);
+                }
             }
             var rowNumberCount = rowNumber.Count;
 
             foreach (var item in rowNumber)
             {
-                
+
             }
 
         }
@@ -156,7 +156,10 @@ namespace SeleniumTests
             var trRowElementsA = driver.FindElements(By.CssSelector("tbody .row > td:nth-child(3) > a"));
             foreach (var item in trRowElementsA)
             {
-                item.Click();                
+                item.Click();
+
+
+                driver.Navigate().GoToUrl("http://localhost:8080/litecart/admin/?app=geo_zones&doc=geo_zones");
             }
         }
 
@@ -171,29 +174,75 @@ namespace SeleniumTests
         public void Test_CheckItem()
         {
             driver.Navigate().GoToUrl(baseURL);
-            var itemName = driver.FindElement(By.CssSelector("#box-campaigns div.name")).GetAttribute("textContent");
-            var itemRegularPrice = driver.FindElement(By.CssSelector("#box-campaigns .regular-price")).GetAttribute("textContent"); 
-            var itemCampaignPrice = driver.FindElement(By.CssSelector("#box-campaigns .campaign-price")).GetAttribute("textContent"); 
+            var itemName = driver.FindElement(By.CssSelector("#box-campaigns div.name"));
+            var itemNameContent = itemName.GetAttribute("textContent");
+            var itemnameColor = itemName.GetCssValue("color");
+
+
+            var itemRegularPrice = driver.FindElement(By.CssSelector("#box-campaigns .regular-price"));
+            var itemRegularPriceContent = itemRegularPrice.GetAttribute("textContent");
+            var itemRegularPriceColor = itemRegularPrice.GetCssValue("color");
+            var itemRegularPriceFont = itemRegularPrice.GetCssValue("font-size");
+            var itemRegularPriceFontDouble = (float)Convert.ToDouble(itemRegularPriceFont);
+
+            string[] separators = { ",", "(", ")" };
+            string[] itemRegularPriceColorRGBA = itemRegularPriceColor.Split(separators, StringSplitOptions.RemoveEmptyEntries);
+            var itemRegularPriceColorRGBATrim = MyTrim(itemRegularPriceColorRGBA);            
+
+
+            var itemCampaignPrice = driver.FindElement(By.CssSelector("#box-campaigns .campaign-price"));
+            var itemCampaignPriceContent = itemCampaignPrice.GetAttribute("textContent");
+            var itemCampaignPriceColor = itemCampaignPrice.GetCssValue("color");
+            var itemCampaignPriceFont = itemCampaignPrice.GetCssValue("font-size");
+            var itemCampaignPriceFontDouble = (float)Convert.ToDouble(itemCampaignPriceFont);
+
+            string[] itemCampaignPriceColorRGBA = itemCampaignPriceColor.Split(separators, StringSplitOptions.RemoveEmptyEntries);
+            var itemCampaignPriceColorRGBATrim = MyTrim(itemCampaignPriceColorRGBA);
+
             var elem = driver.FindElement(By.CssSelector("#box-campaigns a.link"));
+
             elem.Click();
-            var itemNameMain = driver.FindElement(By.CssSelector("h1.title")).GetAttribute("textContent"); ;
-            var itemRegularPriceMain = driver.FindElement(By.CssSelector(".price-wrapper .regular-price")).GetAttribute("textContent"); 
-            var itemCampaignPriceMain = driver.FindElement(By.CssSelector(".price-wrapper .campaign-price")).GetAttribute("textContent");
-            Assert.AreEqual(itemName, itemNameMain);
-            Assert.AreEqual(itemRegularPrice, itemRegularPriceMain);
-            Assert.AreEqual(itemCampaignPrice, itemCampaignPriceMain);
+
+            var itemNameMain = driver.FindElement(By.CssSelector("h1.title"));
+            var itemNameMainContent = itemNameMain.GetAttribute("textContent");
+
+            var itemRegularPriceMain = driver.FindElement(By.CssSelector(".price-wrapper .regular-price"));
+            var itemRegularPriceMainContent = itemRegularPriceMain.GetAttribute("textContent");
+            var itemRegularPriceMainFont = itemRegularPriceMain.GetCssValue("font-size");
+            var itemRegularPriceMainFontDouble = (float)Convert.ToDouble(itemRegularPriceMainFont);
+
+            var itemCampaignPriceMain = driver.FindElement(By.CssSelector(".price-wrapper .campaign-price"));
+            var itemCampaignPriceMainContent = itemCampaignPriceMain.GetAttribute("textContent");
+            var itemCampaignPriceMainFont = itemCampaignPriceMain.GetCssValue("font-size");
+            var itemCampaignPriceMainFontDouble = (float)Convert.ToDouble(itemCampaignPriceMainFont);
+
+            Assert.AreEqual(itemNameContent, itemNameMainContent);
+            Assert.AreEqual(itemRegularPriceContent, itemRegularPriceMainContent);
+            Assert.AreEqual(itemCampaignPriceContent, itemCampaignPriceMainContent);
+
+            Assert.AreEqual(itemRegularPriceColorRGBATrim[1], itemRegularPriceColorRGBATrim[2]);
+            Assert.AreEqual(itemRegularPriceColorRGBATrim[2], itemRegularPriceColorRGBATrim[3]);
+            Assert.AreEqual(itemRegularPriceColorRGBATrim[1], itemRegularPriceColorRGBATrim[3]);
+
+            Assert.AreEqual(itemCampaignPriceColorRGBATrim[2], itemCampaignPriceColorRGBATrim[3]);
+            Assert.AreEqual(itemCampaignPriceColorRGBATrim[2], "0");
+            Assert.AreEqual(itemCampaignPriceColorRGBATrim[3], "0");
+            
+            Assert.Greater(itemCampaignPriceFontDouble, itemRegularPriceFontDouble);
+            Assert.Greater(itemCampaignPriceMainFontDouble, itemRegularPriceMainFontDouble);
 
 
+            
 
 
         }
 
-    //а) на главной странице и на странице товара совпадает текст названия товара
-    //б) на главной странице и на странице товара совпадают цены(обычная и акционная)
-    //в) обычная цена зачёркнутая и серая(можно считать, что "серый" цвет это такой, у которого в RGBa представлении одинаковые значения для каналов R, G и B)
-    //г) акционная жирная и красная(можно считать, что "красный" цвет это такой, у которого в RGBa представлении каналы G и B имеют нулевые значения)
-    //(цвета надо проверить на каждой странице независимо, при этом цвета на разных страницах могут не совпадать)
-    //д) акционная цена крупнее, чем обычная(это тоже надо проверить на каждой странице независимо)
+        //а) на главной странице и на странице товара совпадает текст названия товара
+        //б) на главной странице и на странице товара совпадают цены(обычная и акционная)
+        //в) обычная цена зачёркнутая и серая(можно считать, что "серый" цвет это такой, у которого в RGBa представлении одинаковые значения для каналов R, G и B)
+        //г) акционная жирная и красная(можно считать, что "красный" цвет это такой, у которого в RGBa представлении каналы G и B имеют нулевые значения)
+        //(цвета надо проверить на каждой странице независимо, при этом цвета на разных страницах могут не совпадать)
+        //д) акционная цена крупнее, чем обычная(это тоже надо проверить на каждой странице независимо)
 
         public void LoginAdminPart()
         {
@@ -229,6 +278,13 @@ namespace SeleniumTests
             wait = new WebDriverWait(driver, new TimeSpan(0, 0, 10));
             wait.Message = "Element with locator '" + locator + "' was not clickable in 10 seconds";
             return wait.Until(SeleniumExtras.WaitHelpers.ExpectedConditions.ElementToBeClickable(locator));
+        }
+
+        public string[] MyTrim(string[] c)
+        {            
+            for (int i = 0; i < c.Length; i++)
+                c[i] = c[i].Trim();
+            return c;
         }
 
         private bool IsElementPresent(By by)
