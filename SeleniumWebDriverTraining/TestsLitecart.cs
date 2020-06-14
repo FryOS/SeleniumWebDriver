@@ -99,11 +99,34 @@ namespace SeleniumTests
         [Test]
         public void Test_CheckSortCountries()
         {
-            LoginAdminPart();
+            driver.Navigate().GoToUrl(baseURL + "admin");
+            driver.FindElement(By.Name("username")).SendKeys("admin");
+            driver.FindElement(By.Name("password")).SendKeys("admin");
+            driver.FindElement(By.Name("login")).Submit();
             driver.Navigate().GoToUrl("http://localhost:8080/litecart/admin/?app=countries&doc=countries");
-            Thread.Sleep(2000);
-
+            var trRowsCount = driver.FindElements(By.ClassName("row")).Count;
+            var trRowElements = driver.FindElements(By.CssSelector("tr> td:nth-child(5)>a"));
+            List<string> countries = new List<string>();
+            List<string> textContents = new List<string>();
             
+            foreach (var trRowElement in trRowElements)
+            {
+                var textContent = trRowElement.GetAttribute("text");                
+                countries.Add(textContent);
+                textContents.Add(textContent);  
+            }
+            countries.Sort();
+            Assert.AreEqual(countries, textContents);
+        }
+
+
+        [Test]
+        public void Test_CheckItem()
+        {
+            driver.Navigate().GoToUrl(baseURL);
+            var itemName = driver.FindElement(By.XPath("//div[@id='box-campaigns']/div/ul/li/a/div[2]"));
+
+
         }
 
         public void LoginAdminPart()
