@@ -127,20 +127,33 @@ namespace SeleniumTests
             driver.FindElement(By.Name("login")).Submit();
             driver.Navigate().GoToUrl("http://localhost:8080/litecart/admin/?app=countries&doc=countries");
             var trRowElements = driver.FindElements(By.CssSelector("tr> td:nth-child(6)"));
-            List<IWebElement> rowNumber = new List<IWebElement>();
+            List<int> rowNumber = new List<int>();
+            int i = 1;
             foreach (var trRowElement in trRowElements)
             {
                 var textContent = trRowElement.GetAttribute("textContent");
                 if (Int32.Parse(textContent) != 0)
                 {
-                    rowNumber.Add(trRowElement);
+                    rowNumber.Add(i);
                 }
+                i++;
             }
             var rowNumberCount = rowNumber.Count;
-
+            List<string> countries = new List<string>();
+            List<string> textContents = new List<string>();
             foreach (var item in rowNumber)
             {
-
+                driver.FindElement(By.CssSelector("tbody tr:nth-child("+(item+1)+") td:nth-child(5)>a")).Click();
+                var trRowElementsZone = driver.FindElements(By.CssSelector("tr>td:nth-child(3)>input[type=hidden]"));
+                foreach (var trRowElementsZoneCountry in trRowElementsZone)
+                {
+                    var textContent = trRowElementsZoneCountry.GetAttribute("value");
+                    countries.Add(textContent);
+                    textContents.Add(textContent);
+                }
+                countries.Sort();
+                Assert.AreEqual(countries, textContents);
+                //не забыть про выход
             }
 
         }
@@ -154,13 +167,39 @@ namespace SeleniumTests
             driver.FindElement(By.Name("login")).Submit();
             driver.Navigate().GoToUrl("http://localhost:8080/litecart/admin/?app=geo_zones&doc=geo_zones");
             var trRowElementsA = driver.FindElements(By.CssSelector("tbody .row > td:nth-child(3) > a"));
-            foreach (var item in trRowElementsA)
+
+            for (int i=0; i < trRowElementsA.Count; i++)
             {
-                item.Click();
-
-
+                trRowElementsA[i].Click();
+                CheckZones();
+               
+                // взять for и кликать на iтый элемент
                 driver.Navigate().GoToUrl("http://localhost:8080/litecart/admin/?app=geo_zones&doc=geo_zones");
             }
+
+            
+            
+        }
+
+        public void CheckZones() 
+        {
+            var trRowElementsA = driver.FindElements(By.XPath("//select[contains(@name,'zone_code')]"));
+            //List<SelectElement> arrSelect = new List<SelectElement>();
+            List<string> selectCountries = new List<string>();
+            List<string> selectCountriesSort = new List<string>();
+
+            foreach (var item in trRowElementsA)
+            {
+                //arrSelect.Add(new SelectElement(item));
+                string selectedValue = (new SelectElement(item)).SelectedOption.Text.Trim();
+                selectCountries.Add(selectedValue);
+                selectCountriesSort.Add(selectedValue);
+                
+                
+            }
+            selectCountriesSort.Sort();
+            Assert.AreEqual(selectCountries, selectCountriesSort);
+
         }
 
 
@@ -237,12 +276,29 @@ namespace SeleniumTests
 
         }
 
+
+
         //а) на главной странице и на странице товара совпадает текст названия товара
         //б) на главной странице и на странице товара совпадают цены(обычная и акционная)
         //в) обычная цена зачёркнутая и серая(можно считать, что "серый" цвет это такой, у которого в RGBa представлении одинаковые значения для каналов R, G и B)
         //г) акционная жирная и красная(можно считать, что "красный" цвет это такой, у которого в RGBa представлении каналы G и B имеют нулевые значения)
         //(цвета надо проверить на каждой странице независимо, при этом цвета на разных страницах могут не совпадать)
         //д) акционная цена крупнее, чем обычная(это тоже надо проверить на каждой странице независимо)
+
+        public void SelectFromDropDown(By locator, string text)
+        {
+            SelectElement select = new SelectElement(driver.FindElement(locator));
+            string selectedValue = select.SelectedOption.Text.Trim(); //нужно, если есть пробелы в начале и конце элемента drop-down листа
+            if (selectedValue != text) //эта проверка нужна, т.к. мб случай когда уже корректное значение выбрано
+            {
+                driver.FindElement(locator).Click();
+                Assert.True(driver.FindElement(By.XPath("//option[contains(text(), '" + text + "')]")).Displayed, string.Format("Could not find '{0}' in the list", text));
+                var list = driver.FindElement(locator);
+                var selectElement = new SelectElement(list);
+                selectElement.SelectByText(text);
+            }
+        }
+
 
         public void LoginAdminPart()
         {
