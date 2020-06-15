@@ -153,7 +153,7 @@ namespace SeleniumTests
                 }
                 countries.Sort();
                 Assert.AreEqual(countries, textContents);
-                //не забыть про выход
+                
             }
 
         }
@@ -170,21 +170,16 @@ namespace SeleniumTests
 
             for (int i=0; i < trRowElementsA.Count; i++)
             {
-                trRowElementsA[i].Click();
-                CheckZones();
-               
-                // взять for и кликать на iтый элемент
+                var trRowElementsAs = driver.FindElements(By.CssSelector("tbody .row > td:nth-child(3) > a"));
+                trRowElementsAs[i].Click();
+                CheckZones();      
                 driver.Navigate().GoToUrl("http://localhost:8080/litecart/admin/?app=geo_zones&doc=geo_zones");
-            }
-
-            
-            
+            }  
         }
 
         public void CheckZones() 
         {
             var trRowElementsA = driver.FindElements(By.XPath("//select[contains(@name,'zone_code')]"));
-            //List<SelectElement> arrSelect = new List<SelectElement>();
             List<string> selectCountries = new List<string>();
             List<string> selectCountriesSort = new List<string>();
 
@@ -194,12 +189,9 @@ namespace SeleniumTests
                 string selectedValue = (new SelectElement(item)).SelectedOption.Text.Trim();
                 selectCountries.Add(selectedValue);
                 selectCountriesSort.Add(selectedValue);
-                
-                
             }
             selectCountriesSort.Sort();
             Assert.AreEqual(selectCountries, selectCountriesSort);
-
         }
 
 
