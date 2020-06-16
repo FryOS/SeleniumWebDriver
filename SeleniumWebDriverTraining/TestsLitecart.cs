@@ -195,12 +195,6 @@ namespace SeleniumTests
         }
 
 
-        //б) для тех стран, у которых количество зон отлично от нуля -- 
-        //открыть страницу этой страны и там проверить, что зоны расположены в алфавитном порядке
-
-        //2) на странице http://localhost/litecart/admin/?app=geo_zones&doc=geo_zones
-        //зайти в каждую из стран и проверить, что зоны расположены в алфавитном порядке
-
         [Test]
         public void Test_CheckItem()
         {
@@ -261,21 +255,70 @@ namespace SeleniumTests
             
             Assert.Greater(itemCampaignPriceFontDouble, itemRegularPriceFontDouble);
             Assert.Greater(itemCampaignPriceMainFontDouble, itemRegularPriceMainFontDouble);
+        }
 
+        [Test]
+        public void Test_UserRegistration()
+        {
+            string myemail = "1236@mail.ru";
 
+            driver.Navigate().GoToUrl(baseURL);
+            var newCustomer = driver.FindElement(By.CssSelector("table tbody tr td>a"));
+            newCustomer.Click();
+            Thread.Sleep(1000);
+
+            var firstname = driver.FindElement(By.CssSelector("input[name=firstname]"));
+            firstname.SendKeys("123");
+
+            var lastname = driver.FindElement(By.CssSelector("input[name=lastname]"));
+            lastname.SendKeys("123");
+
+            var address1 = driver.FindElement(By.CssSelector("input[name=address1]"));
+            address1.SendKeys("Voss");
+
+            var postcode = driver.FindElement(By.CssSelector("input[name=postcode]"));
+            postcode.SendKeys("12312");
+
+            var city = driver.FindElement(By.CssSelector("input[name=city]"));
+            city.SendKeys("Nov");
+
+            var email = driver.FindElement(By.CssSelector("input[name=email]"));
+            email.SendKeys(myemail);
+
+            var phone = driver.FindElement(By.CssSelector("input[name=phone]"));
+            phone.SendKeys("123123123");
+
+            var password = driver.FindElement(By.CssSelector("input[name=password]"));
+            password.SendKeys("123123");
+
+            var confirmed_password = driver.FindElement(By.CssSelector("input[name=confirmed_password]"));
+            confirmed_password.SendKeys("123123");
+
+            SelectElement selectCountry = new SelectElement(driver.FindElement(By.CssSelector("select[name=country_code]")));
+            selectCountry.SelectByText("United States");
+
+            SelectElement selectZoneCode = new SelectElement(driver.FindElement(By.CssSelector("select[name=zone_code]")));
+            selectZoneCode.SelectByValue("AK");
+
+            driver.FindElement(By.CssSelector("button[type=submit]")).Click();
+
+            Thread.Sleep(500);
+            driver.FindElement(By.LinkText("Logout")).Click();
+            Thread.Sleep(1000);
+            driver.FindElement(By.CssSelector("input[name=email]")).SendKeys(myemail);
+            driver.FindElement(By.CssSelector("input[name=password]")).SendKeys("123123");
             
-
-
+            driver.FindElement(By.CssSelector("button[type=submit]")).Click();
         }
 
 
+        //1) регистрация новой учётной записи с достаточно уникальным адресом 
+        //    электронной почты(чтобы не конфликтовало с ранее созданными пользователями, в том числе при предыдущих запусках того же самого сценария),
+        //2) выход(logout), потому что после успешной регистрации автоматически происходит вход,
+        //3) повторный вход в только что созданную учётную запись,
+        //4) и ещё раз выход.
+        //В качестве страны выбирайте United States, штат произвольный. При этом формат индекса -- пять цифр.
 
-        //а) на главной странице и на странице товара совпадает текст названия товара
-        //б) на главной странице и на странице товара совпадают цены(обычная и акционная)
-        //в) обычная цена зачёркнутая и серая(можно считать, что "серый" цвет это такой, у которого в RGBa представлении одинаковые значения для каналов R, G и B)
-        //г) акционная жирная и красная(можно считать, что "красный" цвет это такой, у которого в RGBa представлении каналы G и B имеют нулевые значения)
-        //(цвета надо проверить на каждой странице независимо, при этом цвета на разных страницах могут не совпадать)
-        //д) акционная цена крупнее, чем обычная(это тоже надо проверить на каждой странице независимо)
 
         public void SelectFromDropDown(By locator, string text)
         {
