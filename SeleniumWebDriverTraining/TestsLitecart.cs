@@ -152,8 +152,7 @@ namespace SeleniumTests
                     textContents.Add(textContent);
                 }
                 countries.Sort();
-                Assert.AreEqual(countries, textContents);
-                
+                Assert.AreEqual(countries, textContents);                
             }
 
         }
@@ -260,7 +259,10 @@ namespace SeleniumTests
         [Test]
         public void Test_UserRegistration()
         {
-            string myemail = "1236@mail.ru";
+            Random rnd = new Random();
+            var str = rnd.Next(100);
+
+            string myemail = "AlexOsp"+str+"@mail.ru";
 
             driver.Navigate().GoToUrl(baseURL);
             var newCustomer = driver.FindElement(By.CssSelector("table tbody tr td>a"));
@@ -312,14 +314,83 @@ namespace SeleniumTests
         }
 
 
-        //1) регистрация новой учётной записи с достаточно уникальным адресом 
-        //    электронной почты(чтобы не конфликтовало с ранее созданными пользователями, в том числе при предыдущих запусках того же самого сценария),
-        //2) выход(logout), потому что после успешной регистрации автоматически происходит вход,
-        //3) повторный вход в только что созданную учётную запись,
-        //4) и ещё раз выход.
-        //В качестве страны выбирайте United States, штат произвольный. При этом формат индекса -- пять цифр.
+
+        [Test]
+        public void Test_AddNewProduct()
+        {
+            LoginAdminPart();
+            driver.FindElement(By.XPath("(//li[@id='app-']/a/span[2])[2]")).Click();
+            Thread.Sleep(1000);
+            driver.FindElement(By.LinkText("Add New Product")).Click();
+            driver.FindElement(By.Name("status")).Click();
+            driver.FindElement(By.Name("name[en]")).Click();
+            driver.FindElement(By.Name("name[en]")).Clear();
+            driver.FindElement(By.Name("name[en]")).SendKeys("123");
+            driver.FindElement(By.Name("code")).Click();
+            driver.FindElement(By.Name("code")).Clear();
+            driver.FindElement(By.Name("code")).SendKeys("test");
+            driver.FindElement(By.Name("product_groups[]")).Click();
+            driver.FindElement(By.XPath("(//input[@name='product_groups[]'])[2]")).Click();
+            driver.FindElement(By.Name("new_images[]")).Click();
+            driver.FindElement(By.Name("new_images[]")).Clear();
+            driver.FindElement(By.Name("new_images[]")).SendKeys("..\\..\\duckOmon.jpg");
+            driver.FindElement(By.Name("date_valid_from")).Click();
+            driver.FindElement(By.Name("date_valid_from")).Clear();
+            driver.FindElement(By.Name("date_valid_from")).SendKeys("2020-06-16");
+            driver.FindElement(By.Name("date_valid_to")).Click();
+            driver.FindElement(By.Name("date_valid_to")).Clear();
+            driver.FindElement(By.Name("date_valid_to")).SendKeys("2020-06-30");
+            driver.FindElement(By.LinkText("Information")).Click();
+            driver.FindElement(By.Name("manufacturer_id")).Click();
+            new SelectElement(driver.FindElement(By.Name("manufacturer_id"))).SelectByText("ACME Corp.");
+            driver.FindElement(By.XPath("(//option[@value='1'])[4]")).Click();
+            driver.FindElement(By.Name("supplier_id")).Click();
+            driver.FindElement(By.XPath("(//option[@value=''])[5]")).Click();
+            driver.FindElement(By.Name("keywords")).Click();
+            driver.FindElement(By.Name("keywords")).Clear();
+            driver.FindElement(By.Name("keywords")).SendKeys("test");
+            driver.FindElement(By.Name("short_description[en]")).Click();
+            driver.FindElement(By.Name("short_description[en]")).Clear();
+            driver.FindElement(By.Name("short_description[en]")).SendKeys("test");
+            driver.FindElement(By.XPath("//div[@id='tab-information']/table/tbody/tr[5]/td/span/div/div[2]")).Click();
+            
+            driver.FindElement(By.Name("head_title[en]")).Click();
+            driver.FindElement(By.Name("head_title[en]")).Clear();
+            driver.FindElement(By.Name("head_title[en]")).SendKeys("test");
+            driver.FindElement(By.Name("meta_description[en]")).Click();
+            driver.FindElement(By.Name("meta_description[en]")).Clear();
+            driver.FindElement(By.Name("meta_description[en]")).SendKeys("test");
+            driver.FindElement(By.LinkText("Prices")).Click();
+            driver.FindElement(By.Name("purchase_price")).Clear();
+            driver.FindElement(By.Name("purchase_price")).SendKeys("10");
+            driver.FindElement(By.Name("purchase_price")).Click();
+            driver.FindElement(By.Name("purchase_price_currency_code")).Click();
+            new SelectElement(driver.FindElement(By.Name("purchase_price_currency_code"))).SelectByText("US Dollars");
+            driver.FindElement(By.XPath("//option[@value='USD']")).Click();
+            driver.FindElement(By.Name("tax_class_id")).Click();
+            driver.FindElement(By.XPath("(//option[@value=''])[7]")).Click();
+            driver.FindElement(By.Name("prices[USD]")).Click();
+            driver.FindElement(By.Name("prices[USD]")).Clear();
+            driver.FindElement(By.Name("prices[USD]")).SendKeys("test");
+            driver.FindElement(By.Name("prices[EUR]")).Click();
+            driver.FindElement(By.Name("prices[EUR]")).Clear();
+            driver.FindElement(By.Name("prices[EUR]")).SendKeys("test");
+            driver.FindElement(By.Name("save")).Click();
+        }
+
+        //Сделайте сценарий для добавления нового товара(продукта) в учебном приложении litecart(в админке).
+        //Для добавления товара нужно открыть меню Catalog, в правом верхнем углу нажать кнопку "Add New Product", 
+        //    заполнить поля с информацией о товаре и сохранить.
+        //Достаточно заполнить только информацию на вкладках General, Information и Prices.Скидки(Campains) на вкладке Prices можно не добавлять.
+        //Переключение между вкладками происходит не мгновенно, поэтому после переключения можно сделать 
+        //    небольшую паузу(о том, как делать более правильные ожидания, будет рассказано в следующих занятиях).
+        //Картинку с изображением товара нужно уложить в репозиторий вместе с кодом.
+        //    При этом указывать в коде полный абсолютный путь к файлу плохо, на другой машине работать не будет.Надо средствами языка 
+        //        программирования преобразовать относительный путь в абсолютный.
+        //После сохранения товара нужно убедиться, что он появился в каталоге (в админке). Клиентскую часть магазина можно не проверять.
 
 
+        //___________________
         public void SelectFromDropDown(By locator, string text)
         {
             SelectElement select = new SelectElement(driver.FindElement(locator));
