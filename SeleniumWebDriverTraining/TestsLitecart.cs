@@ -8,6 +8,8 @@ using OpenQA.Selenium.Support.UI;
 using SeleniumExtras.WaitHelpers;
 using System.Linq;
 using System.Threading;
+using System.IO;
+using System.Reflection;
 
 namespace SeleniumTests
 {
@@ -320,12 +322,15 @@ namespace SeleniumTests
         {
             LoginAdminPart();
             Thread.Sleep(500);
+            string servicePath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + "\\duckOmon.jpg";
             driver.FindElement(By.XPath("(//li[@id='app-']/a/span[2])[2]")).Click();
             Click(By.LinkText("Add New Product"));
             driver.FindElement(By.Name("status")).Click();
             driver.FindElement(By.Name("name[en]")).Click();
             driver.FindElement(By.Name("name[en]")).Clear();
+            
             driver.FindElement(By.Name("name[en]")).SendKeys("12356");
+            Thread.Sleep(1000);
             driver.FindElement(By.Name("code")).Click();
             driver.FindElement(By.Name("code")).Clear();
             driver.FindElement(By.Name("code")).SendKeys("65465");
@@ -333,13 +338,13 @@ namespace SeleniumTests
             driver.FindElement(By.XPath("(//input[@name='product_groups[]'])[2]")).Click();
             //driver.FindElement(By.Name("new_images[]")).Click();
             driver.FindElement(By.Name("new_images[]")).Clear();
-            driver.FindElement(By.Name("new_images[]")).SendKeys(@"C:\Users\AlexeyOSp\source\repos\SeleniumWebDriverTraining\SeleniumWebDriverTraining\duckOmon.jpg");
+            driver.FindElement(By.Name("new_images[]")).SendKeys(servicePath);
             driver.FindElement(By.Name("date_valid_from")).Click();
             driver.FindElement(By.Name("date_valid_from")).Clear();
-            driver.FindElement(By.Name("date_valid_from")).SendKeys("2020-06-16");
+            driver.FindElement(By.Name("date_valid_from")).SendKeys(Keys.Home + "2020-06-16");
             driver.FindElement(By.Name("date_valid_to")).Click();
             driver.FindElement(By.Name("date_valid_to")).Clear();
-            driver.FindElement(By.Name("date_valid_to")).SendKeys("2020-06-30");
+            driver.FindElement(By.Name("date_valid_to")).SendKeys(Keys.Home + "2020-06-30");
             driver.FindElement(By.LinkText("Information")).Click();
             driver.FindElement(By.Name("manufacturer_id")).Click();
             new SelectElement(driver.FindElement(By.Name("manufacturer_id"))).SelectByText("ACME Corp.");
@@ -375,7 +380,9 @@ namespace SeleniumTests
             driver.FindElement(By.Name("prices[EUR]")).Click();
             driver.FindElement(By.Name("prices[EUR]")).Clear();
             driver.FindElement(By.Name("prices[EUR]")).SendKeys("18");
-            driver.FindElement(By.Name("save")).Submit();
+            Click(By.Name("save"));
+
+            
         }
 
         [Test]
