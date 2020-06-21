@@ -22,6 +22,7 @@ namespace SeleniumTests
         private bool acceptNextAlert = true;
         private WebDriverWait wait;
 
+
         [SetUp]
         public void SetupTest()
         {
@@ -316,7 +317,6 @@ namespace SeleniumTests
         }
 
 
-
         [Test]
         public void Test_AddNewProduct()
         {
@@ -327,8 +327,7 @@ namespace SeleniumTests
             Click(By.LinkText("Add New Product"));
             driver.FindElement(By.Name("status")).Click();
             driver.FindElement(By.Name("name[en]")).Click();
-            driver.FindElement(By.Name("name[en]")).Clear();
-            
+            driver.FindElement(By.Name("name[en]")).Clear();            
             driver.FindElement(By.Name("name[en]")).SendKeys("12356");
             Thread.Sleep(1000);
             driver.FindElement(By.Name("code")).Click();
@@ -341,10 +340,10 @@ namespace SeleniumTests
             driver.FindElement(By.Name("new_images[]")).SendKeys(servicePath);
             driver.FindElement(By.Name("date_valid_from")).Click();
             driver.FindElement(By.Name("date_valid_from")).Clear();
-            driver.FindElement(By.Name("date_valid_from")).SendKeys(Keys.Home + "2020-06-16");
+            driver.FindElement(By.Name("date_valid_from")).SendKeys(Keys.Home + "06-16-2020");
             driver.FindElement(By.Name("date_valid_to")).Click();
             driver.FindElement(By.Name("date_valid_to")).Clear();
-            driver.FindElement(By.Name("date_valid_to")).SendKeys(Keys.Home + "2020-06-30");
+            driver.FindElement(By.Name("date_valid_to")).SendKeys(Keys.Home + "06-18-2020");
             driver.FindElement(By.LinkText("Information")).Click();
             driver.FindElement(By.Name("manufacturer_id")).Click();
             new SelectElement(driver.FindElement(By.Name("manufacturer_id"))).SelectByText("ACME Corp.");
@@ -386,15 +385,39 @@ namespace SeleniumTests
         }
 
         [Test]
-        public void Test_AddProdBasket_DelProdBusket() 
+        public void Test_AddProdBasket_DelProdBusket()
         {
+            wait = new WebDriverWait(driver, TimeSpan.FromSeconds(10));
+            AddProductToCart();
+            wait.Until(d => d.FindElement(By.CssSelector("#cart > a.content > span.quantity")).Text.Contains("1"));
+            AddProductToCart();
+            wait.Until(d => d.FindElement(By.CssSelector("#cart > a.content > span.quantity")).Text.Contains("2"));
+            AddProductToCart();
+            wait.Until(d => d.FindElement(By.CssSelector("#cart > a.content > span.quantity")).Text.Contains("3"));
+            var checkout = wait.Until(d => d.FindElement(By.LinkText("Checkout »")));
+            checkout.Click();
+
+            var tableTrs =  driver.FindElements(By.CssSelector(".dataTable.rounded-corners tr > td.item"));
+
+            foreach (var item in tableTrs)
+            {                
+                Click(By.Name("remove_cart_item"));
+               
+                driver.Navigate().Refresh();                
+                wait.Until(ExpectedConditions.StalenessOf(item));                
+            }
+
+
+            Thread.Sleep(10000);
+        }
+
+        private void AddProductToCart()
+        {
+            wait = new WebDriverWait(driver, TimeSpan.FromSeconds(10));            
             driver.Navigate().GoToUrl(baseURL);
-            //driver.FindElement(By.XPath("//img[@alt='Green Duck']")).Click();
             driver.FindElement(By.XPath("//*[@id ='box-most-popular']/div/ul/li[1]")).Click();
-
-            //div[@id='tab-information']/
-            Thread.Sleep(2000);
-
+            IWebElement addToCartButton = wait.Until(ExpectedConditions.ElementExists(By.Name("add_cart_product")));
+            addToCartButton.Click();           
         }
 
 
@@ -407,104 +430,6 @@ namespace SeleniumTests
         //4) вернуться на главную страницу, повторить предыдущие шаги ещё два раза, чтобы в общей сложности в корзине было 3 единицы товара
         //5) открыть корзину(в правом верхнем углу кликнуть по ссылке Checkout)
         //6) удалить все товары из корзины один за другим, после каждого удаления подождать, пока внизу обновится таблица
-
-
-
-
-
-
-
-
-
-
-
-
-
-        [Test]
-        public void TheUntitledTestCaseTest()
-        {
-            LoginAdminPart();
-            Thread.Sleep(500);
-            driver.Navigate().GoToUrl("http://localhost:8080/litecart/admin/");
-            driver.FindElement(By.LinkText("Catalog")).Click();
-            Click(By.LinkText("Add New Product"));
-            Thread.Sleep(500);
-            driver.FindElement(By.Name("status")).Click();
-            Thread.Sleep(500);
-            driver.FindElement(By.Name("name[en]")).Click();
-            driver.FindElement(By.Name("name[en]")).Clear();
-            driver.FindElement(By.Name("name[en]")).SendKeys("test654");
-            driver.FindElement(By.Name("code")).Click();
-            driver.FindElement(By.Name("code")).Clear();
-            driver.FindElement(By.Name("code")).SendKeys("123");
-            driver.FindElement(By.Name("product_groups[]")).Click();
-            driver.FindElement(By.XPath("(//input[@name='product_groups[]'])[2]")).Click();
-            driver.FindElement(By.Name("quantity")).Click();
-            driver.FindElement(By.Name("quantity")).Click();
-            driver.FindElement(By.Name("quantity")).Clear();
-            driver.FindElement(By.Name("quantity")).SendKeys("123");
-            
-            
-            driver.FindElement(By.Name("new_images[]")).SendKeys(@"C:\Users\AlexeyOSp\source\repos\SeleniumWebDriverTraining\SeleniumWebDriverTraining\duckOmon.jpg");
-
-            driver.FindElement(By.Name("date_valid_from")).Click();
-            driver.FindElement(By.Name("date_valid_from")).Clear();
-            driver.FindElement(By.Name("date_valid_from")).SendKeys(Keys.Home + "2020-06-25");
-            driver.FindElement(By.Name("date_valid_to")).Click();
-            driver.FindElement(By.Name("date_valid_to")).Clear();
-            driver.FindElement(By.Name("date_valid_to")).SendKeys(Keys.Home + "2020-06-25");
-            driver.FindElement(By.LinkText("Information")).Click();
-            driver.FindElement(By.Name("manufacturer_id")).Click();
-            new SelectElement(driver.FindElement(By.Name("manufacturer_id"))).SelectByText("ACME Corp.");
-            driver.FindElement(By.XPath("(//option[@value='1'])[4]")).Click();
-            driver.FindElement(By.Name("supplier_id")).Click();
-            driver.FindElement(By.XPath("(//option[@value=''])[5]")).Click();
-            driver.FindElement(By.Name("keywords")).Click();
-            driver.FindElement(By.Name("keywords")).Clear();
-            driver.FindElement(By.Name("keywords")).SendKeys("dfg");
-            driver.FindElement(By.XPath("//div[@id='tab-information']/table/tbody/tr[5]/td/span/div/div[2]")).Click();
-            driver.FindElement(By.Name("short_description[en]")).Click();
-            driver.FindElement(By.Name("short_description[en]")).Clear();
-            driver.FindElement(By.Name("short_description[en]")).SendKeys("dfg");
-            driver.FindElement(By.XPath("//div[@id='tab-information']/table/tbody/tr[5]/td/span/div/div[2]")).Click();
-            // ERROR: Caught exception [unknown command [editContent]]
-            driver.FindElement(By.Name("head_title[en]")).Click();
-            driver.FindElement(By.Name("head_title[en]")).Clear();
-            driver.FindElement(By.Name("head_title[en]")).SendKeys("dfg");
-            driver.FindElement(By.Name("meta_description[en]")).Click();
-            driver.FindElement(By.Name("meta_description[en]")).Clear();
-            driver.FindElement(By.Name("meta_description[en]")).SendKeys("dfg");
-            driver.FindElement(By.LinkText("Prices")).Click();
-            driver.FindElement(By.Name("purchase_price")).Click();
-            driver.FindElement(By.Name("purchase_price")).Clear();
-            driver.FindElement(By.Name("purchase_price")).SendKeys("123");
-            driver.FindElement(By.Name("purchase_price_currency_code")).Click();
-            new SelectElement(driver.FindElement(By.Name("purchase_price_currency_code"))).SelectByText("US Dollars");
-            driver.FindElement(By.XPath("//option[@value='USD']")).Click();
-            driver.FindElement(By.Name("tax_class_id")).Click();
-            driver.FindElement(By.XPath("(//option[@value=''])[7]")).Click();
-            driver.FindElement(By.Name("prices[USD]")).Click();
-            driver.FindElement(By.Name("prices[USD]")).Clear();
-            driver.FindElement(By.Name("prices[USD]")).SendKeys("12312");
-            driver.FindElement(By.Name("prices[EUR]")).Click();
-            driver.FindElement(By.Name("prices[EUR]")).Clear();
-            driver.FindElement(By.Name("prices[EUR]")).SendKeys("33");
-            driver.FindElement(By.LinkText("General")).Click();
-            driver.FindElement(By.Name("save")).Click();
-            Thread.Sleep(3000);
-        }
-
-        //Сделайте сценарий для добавления нового товара(продукта) в учебном приложении litecart(в админке).
-        //Для добавления товара нужно открыть меню Catalog, в правом верхнем углу нажать кнопку "Add New Product", 
-        //    заполнить поля с информацией о товаре и сохранить.
-        //Достаточно заполнить только информацию на вкладках General, Information и Prices.Скидки(Campains) на вкладке Prices можно не добавлять.
-        //Переключение между вкладками происходит не мгновенно, поэтому после переключения можно сделать 
-        //    небольшую паузу(о том, как делать более правильные ожидания, будет рассказано в следующих занятиях).
-        //Картинку с изображением товара нужно уложить в репозиторий вместе с кодом.
-        //    При этом указывать в коде полный абсолютный путь к файлу плохо, на другой машине работать не будет.Надо средствами языка 
-        //        программирования преобразовать относительный путь в абсолютный.
-        //После сохранения товара нужно убедиться, что он появился в каталоге (в админке). Клиентскую часть магазина можно не проверять.
-
 
         //___________________
         public void SelectFromDropDown(By locator, string text)
@@ -520,7 +445,6 @@ namespace SeleniumTests
                 selectElement.SelectByText(text);
             }
         }
-
 
         public void LoginAdminPart()
         {
