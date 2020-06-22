@@ -20,13 +20,14 @@ namespace SeleniumTests
         private StringBuilder verificationErrors;
         private string baseURL;
         private bool acceptNextAlert = true;
-        private WebDriverWait wait;
+        private WebDriverWait wait; 
 
 
         [SetUp]
         public void SetupTest()
         {
             driver = new ChromeDriver();
+            wait = new WebDriverWait(driver, TimeSpan.FromSeconds(10));
             baseURL = "http://localhost:8080/litecart/";
             verificationErrors = new StringBuilder();
             driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(30);
@@ -387,13 +388,11 @@ namespace SeleniumTests
         [Test]
         public void Test_AddProdBasket_DelProdBusket()
         {
-            wait = new WebDriverWait(driver, TimeSpan.FromSeconds(10));
-            AddProductToCart();
-            wait.Until(d => d.FindElement(By.CssSelector("#cart > a.content > span.quantity")).Text.Contains("1"));
-            AddProductToCart();
-            wait.Until(d => d.FindElement(By.CssSelector("#cart > a.content > span.quantity")).Text.Contains("2"));
-            AddProductToCart();
-            wait.Until(d => d.FindElement(By.CssSelector("#cart > a.content > span.quantity")).Text.Contains("3"));
+            for (int i = 1; i <= 3; i++)
+            {
+                AddProductToCart();
+                wait.Until(d => d.FindElement(By.CssSelector("#cart > a.content > span.quantity")).Text.Contains(i.ToString()));
+            }
             var checkout = wait.Until(d => d.FindElement(By.LinkText("Checkout »")));
             checkout.Click();
 
@@ -401,35 +400,19 @@ namespace SeleniumTests
 
             foreach (var item in tableTrs)
             {                
-                Click(By.Name("remove_cart_item"));
-               
+                Click(By.Name("remove_cart_item"));               
                 driver.Navigate().Refresh();                
                 wait.Until(ExpectedConditions.StalenessOf(item));                
-            }
-
-
-            Thread.Sleep(10000);
+            }           
         }
 
         private void AddProductToCart()
-        {
-            wait = new WebDriverWait(driver, TimeSpan.FromSeconds(10));            
+        {        
             driver.Navigate().GoToUrl(baseURL);
             driver.FindElement(By.XPath("//*[@id ='box-most-popular']/div/ul/li[1]")).Click();
             IWebElement addToCartButton = wait.Until(ExpectedConditions.ElementExists(By.Name("add_cart_product")));
             addToCartButton.Click();           
         }
-
-
-        //            Сделайте сценарий для добавления товаров в корзину и удаления товаров из корзины.
-
-        //1) открыть главную страницу
-        //2) открыть первый товар из списка
-        //2) добавить его в корзину(при этом может случайно добавиться товар, который там уже есть, ничего страшного)
-        //3) подождать, пока счётчик товаров в корзине обновится
-        //4) вернуться на главную страницу, повторить предыдущие шаги ещё два раза, чтобы в общей сложности в корзине было 3 единицы товара
-        //5) открыть корзину(в правом верхнем углу кликнуть по ссылке Checkout)
-        //6) удалить все товары из корзины один за другим, после каждого удаления подождать, пока внизу обновится таблица
 
         //___________________
         public void SelectFromDropDown(By locator, string text)
