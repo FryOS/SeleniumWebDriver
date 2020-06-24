@@ -10,6 +10,8 @@ using System.Linq;
 using System.Threading;
 using System.IO;
 using System.Reflection;
+using System.Security.Cryptography.X509Certificates;
+using System.Runtime.InteropServices;
 
 namespace SeleniumTests
 {
@@ -20,7 +22,7 @@ namespace SeleniumTests
         private StringBuilder verificationErrors;
         private string baseURL;
         private bool acceptNextAlert = true;
-        private WebDriverWait wait; 
+        private WebDriverWait wait;
 
 
         [SetUp]
@@ -147,7 +149,7 @@ namespace SeleniumTests
             List<string> textContents = new List<string>();
             foreach (var item in rowNumber)
             {
-                driver.FindElement(By.CssSelector("tbody tr:nth-child("+(item+1)+") td:nth-child(5)>a")).Click();
+                driver.FindElement(By.CssSelector("tbody tr:nth-child(" + (item + 1) + ") td:nth-child(5)>a")).Click();
                 var trRowElementsZone = driver.FindElements(By.CssSelector("tr>td:nth-child(3)>input[type=hidden]"));
                 foreach (var trRowElementsZoneCountry in trRowElementsZone)
                 {
@@ -156,7 +158,7 @@ namespace SeleniumTests
                     textContents.Add(textContent);
                 }
                 countries.Sort();
-                Assert.AreEqual(countries, textContents);                
+                Assert.AreEqual(countries, textContents);
             }
 
         }
@@ -171,16 +173,16 @@ namespace SeleniumTests
             driver.Navigate().GoToUrl("http://localhost:8080/litecart/admin/?app=geo_zones&doc=geo_zones");
             var trRowElementsA = driver.FindElements(By.CssSelector("tbody .row > td:nth-child(3) > a"));
 
-            for (int i=0; i < trRowElementsA.Count; i++)
+            for (int i = 0; i < trRowElementsA.Count; i++)
             {
                 var trRowElementsAs = driver.FindElements(By.CssSelector("tbody .row > td:nth-child(3) > a"));
                 trRowElementsAs[i].Click();
-                CheckZones();      
+                CheckZones();
                 driver.Navigate().GoToUrl("http://localhost:8080/litecart/admin/?app=geo_zones&doc=geo_zones");
-            }  
+            }
         }
 
-        public void CheckZones() 
+        public void CheckZones()
         {
             var trRowElementsA = driver.FindElements(By.XPath("//select[contains(@name,'zone_code')]"));
             List<string> selectCountries = new List<string>();
@@ -215,7 +217,7 @@ namespace SeleniumTests
 
             string[] separators = { ",", "(", ")" };
             string[] itemRegularPriceColorRGBA = itemRegularPriceColor.Split(separators, StringSplitOptions.RemoveEmptyEntries);
-            var itemRegularPriceColorRGBATrim = MyTrim(itemRegularPriceColorRGBA);            
+            var itemRegularPriceColorRGBATrim = MyTrim(itemRegularPriceColorRGBA);
 
 
             var itemCampaignPrice = driver.FindElement(By.CssSelector("#box-campaigns .campaign-price"));
@@ -255,7 +257,7 @@ namespace SeleniumTests
             Assert.AreEqual(itemCampaignPriceColorRGBATrim[2], itemCampaignPriceColorRGBATrim[3]);
             Assert.AreEqual(itemCampaignPriceColorRGBATrim[2], "0");
             Assert.AreEqual(itemCampaignPriceColorRGBATrim[3], "0");
-            
+
             Assert.Greater(itemCampaignPriceFontDouble, itemRegularPriceFontDouble);
             Assert.Greater(itemCampaignPriceMainFontDouble, itemRegularPriceMainFontDouble);
         }
@@ -266,7 +268,7 @@ namespace SeleniumTests
             Random rnd = new Random();
             var str = rnd.Next(100);
 
-            string myemail = "AlexOsp"+str+"@mail.ru";
+            string myemail = "AlexOsp" + str + "@mail.ru";
 
             driver.Navigate().GoToUrl(baseURL);
             var newCustomer = driver.FindElement(By.CssSelector("table tbody tr td>a"));
@@ -313,7 +315,7 @@ namespace SeleniumTests
             Thread.Sleep(1000);
             driver.FindElement(By.CssSelector("input[name=email]")).SendKeys(myemail);
             driver.FindElement(By.CssSelector("input[name=password]")).SendKeys("123123");
-            
+
             driver.FindElement(By.CssSelector("button[type=submit]")).Click();
         }
 
@@ -328,7 +330,7 @@ namespace SeleniumTests
             Click(By.LinkText("Add New Product"));
             driver.FindElement(By.Name("status")).Click();
             driver.FindElement(By.Name("name[en]")).Click();
-            driver.FindElement(By.Name("name[en]")).Clear();            
+            driver.FindElement(By.Name("name[en]")).Clear();
             driver.FindElement(By.Name("name[en]")).SendKeys("12356");
             Thread.Sleep(1000);
             driver.FindElement(By.Name("code")).Click();
@@ -358,7 +360,7 @@ namespace SeleniumTests
             driver.FindElement(By.Name("short_description[en]")).Clear();
             driver.FindElement(By.Name("short_description[en]")).SendKeys("test");
             driver.FindElement(By.XPath("//div[@id='tab-information']/table/tbody/tr[5]/td/span/div/div[2]")).Click();
-            
+
             driver.FindElement(By.Name("head_title[en]")).Click();
             driver.FindElement(By.Name("head_title[en]")).Clear();
             driver.FindElement(By.Name("head_title[en]")).SendKeys("testtest");
@@ -381,8 +383,6 @@ namespace SeleniumTests
             driver.FindElement(By.Name("prices[EUR]")).Clear();
             driver.FindElement(By.Name("prices[EUR]")).SendKeys("18");
             Click(By.Name("save"));
-
-            
         }
 
         [Test]
@@ -396,22 +396,94 @@ namespace SeleniumTests
             var checkout = wait.Until(d => d.FindElement(By.LinkText("Checkout »")));
             checkout.Click();
 
-            var tableTrs =  driver.FindElements(By.CssSelector(".dataTable.rounded-corners tr > td.item"));
+            var tableTrs = driver.FindElements(By.CssSelector(".dataTable.rounded-corners tr > td.item"));
 
             foreach (var item in tableTrs)
-            {                
-                Click(By.Name("remove_cart_item"));               
-                driver.Navigate().Refresh();                
-                wait.Until(ExpectedConditions.StalenessOf(item));                
-            }           
+            {
+                Click(By.Name("remove_cart_item"));
+                driver.Navigate().Refresh();
+                wait.Until(ExpectedConditions.StalenessOf(item));
+            }
         }
 
+        [Test]
+        public void Test_CountryEditLinksNewWindow()
+        {
+            LoginAdminPart();
+
+            var uls = driver.FindElement(By.Id("box-apps-menu"));
+            Sleep(1000);
+            var lis = uls.FindElements(By.Id("app-"));
+            lis[2].Click();
+            driver.FindElement(By.LinkText("Add New Country")).Click();
+            string mainCountryWindow = driver.CurrentWindowHandle;
+            ICollection<string> oldWindows = driver.WindowHandles;
+            var links = driver.FindElements(By.XPath("//*[@id='content']/form/table[1]/tbody/tr/td/a/i[1]"));
+
+            for (int i = 0; i < links.Count; i++)
+            {
+                links[i].Click();
+                //String newWindow = wait.Until(ThereIsWindowOtherThan(oldWindows));
+                //driver.SwitchTo().Window(newWindow);
+                driver.Close();
+                driver.SwitchTo().Window(mainCountryWindow);
+            }
+
+        }
+
+        
+
+        [Test]
+        public void Test_Protocol()
+        {
+            LoginAdminPart();
+            driver.Navigate().GoToUrl("http://localhost:8080/litecart/admin/?app=catalog&doc=catalog&category_id=1");
+            var items = driver.FindElements(By.XPath("//*[@id='content']/form/table/tbody/tr/td[3]/a"));
+            //driver.FindElement(By.XPath("//*[@id='content']/form/table/tbody/tr[7]/td[3]/a")).Click();
+            for (int i = 0; i < items.Count; i++)
+            {
+                var elems = driver.FindElements(By.XPath("//*[@id='content']/form/table/tbody/tr/td[3]/a"));
+                elems[i].Click();
+                foreach (LogEntry l in driver.Manage().Logs.GetLog("browser"))
+                {
+                    Console.WriteLine(l);
+                }
+                driver.Navigate().GoToUrl("http://localhost:8080/litecart/admin/?app=catalog&doc=catalog&category_id=1");
+            }
+        }
+
+
+        //Сценарий должен состоять из следующих частей:
+        //1) зайти в админку
+        //2) открыть каталог, категорию, которая содержит товары(страница http://localhost/litecart/admin/?app=catalog&doc=catalog&category_id=1)
+        //3) последовательно открывать страницы товаров и проверять, не появляются ли в логе браузера сообщения(любого уровня)
+
+
+        //public ExpectedConditions ThereIsWindowOtherThan(ICollection<string> oldWindows)
+        //{
+        //    var s = Apply(driver, oldWindows);
+
+        //    return new ExpectedConditions(s);
+        //}
+
+        //public string Apply(IWebDriver driver, ICollection<string> oldWindows)
+        //{
+        //    ICollection<String> handles = driver.WindowHandles;
+        //    handles.RemoveAll(oldWindows);
+        //    return handles.Count > 0 ? handles;
+        //}
+
         private void AddProductToCart()
-        {        
+        {
             driver.Navigate().GoToUrl(baseURL);
             driver.FindElement(By.XPath("//*[@id ='box-most-popular']/div/ul/li[1]")).Click();
             IWebElement addToCartButton = wait.Until(ExpectedConditions.ElementExists(By.Name("add_cart_product")));
-            addToCartButton.Click();           
+            addToCartButton.Click();
+        }
+
+        private static void Sleep(int time)
+        {
+            Thread.Sleep(time);
         }
 
         //___________________
@@ -466,7 +538,7 @@ namespace SeleniumTests
         }
 
         public string[] MyTrim(string[] c)
-        {            
+        {
             for (int i = 0; i < c.Length; i++)
                 c[i] = c[i].Trim();
             return c;
