@@ -64,6 +64,9 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BasketPage.cs" />
+    <Compile Include="MainPage.cs" />
+    <Compile Include="ProductPage.cs" />
     <Compile Include="TestsLitecart.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

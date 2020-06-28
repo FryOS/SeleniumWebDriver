@@ -12,6 +12,7 @@ using System.IO;
 using System.Reflection;
 using System.Security.Cryptography.X509Certificates;
 using System.Runtime.InteropServices;
+using SeleniumWebDriverTraining;
 
 namespace SeleniumTests
 {
@@ -23,12 +24,16 @@ namespace SeleniumTests
         private string baseURL;
         private bool acceptNextAlert = true;
         private WebDriverWait wait;
+        private MainPage mainPage;
+        private BasketPage basketPage;
 
 
         [SetUp]
         public void SetupTest()
         {
             driver = new ChromeDriver();
+            mainPage = new MainPage();
+            basketPage = new BasketPage();
             wait = new WebDriverWait(driver, TimeSpan.FromSeconds(10));
             baseURL = "http://localhost:8080/litecart/";
             verificationErrors = new StringBuilder();
@@ -407,6 +412,27 @@ namespace SeleniumTests
         }
 
         [Test]
+        public void Test_AddProdBasket_DelProdBusketPageObjects()
+        {
+            for (int i = 1; i <= 3; i++)
+            {
+                AddProductToCartMainPage(baseURL);
+                wait.Until(d => d.FindElement(ProductPage.Quantity).Text.Contains(i.ToString()));
+            }
+            var checkout = wait.Until(d => d.FindElement(BasketPage.CheckOut));
+            checkout.Click();
+
+            var tableTrs = basketPage.GetTrs();
+
+            foreach (var item in tableTrs)
+            {
+                Click(By.Name("remove_cart_item"));
+                driver.Navigate().Refresh();
+                wait.Until(ExpectedConditions.StalenessOf(item));
+            }
+        }
+
+        [Test]
         public void Test_CountryEditLinksNewWindow()
         {
             LoginAdminPart();
@@ -479,6 +505,15 @@ namespace SeleniumTests
             driver.FindElement(By.XPath("//*[@id ='box-most-popular']/div/ul/li[1]")).Click();
             IWebElement addToCartButton = wait.Until(ExpectedConditions.ElementExists(By.Name("add_cart_product")));
             addToCartButton.Click();
+        }
+
+        public void AddProductToCartMainPage(string baseURL)
+        {
+            mainPage.OpenBasePage(baseURL);
+            mainPage.FirstPopular().Click();
+            //IWebElement addToCartButton = wait.Until(ExpectedConditions.ElementExists(ProductPage.AddToCart));
+            //addToCartButton.Click();
+            Click(ProductPage.AddToCart);
         }
 
         private static void Sleep(int time)
