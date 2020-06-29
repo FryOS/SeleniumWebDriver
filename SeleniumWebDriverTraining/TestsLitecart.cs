@@ -417,10 +417,9 @@ namespace SeleniumTests
             for (int i = 1; i <= 3; i++)
             {
                 AddProductToCartMainPage(baseURL);
-                mainPage.WaitUntil(i.ToString());
-                //wait.Until(d => d.FindElement(ProductPage.Quantity).Text.Contains(i.ToString()));
+                mainPage.WaitUntil(i.ToString());                
             }
-            //var checkout = wait.Until(d => d.FindElement(BasketPage.CheckOut));
+            
             var checkout = mainPage.WaitUntil(BasketPage.CheckOut);
             checkout.Click();
 
@@ -428,10 +427,8 @@ namespace SeleniumTests
 
             foreach (var item in tableTrs)
             {
-                Click(By.Name("remove_cart_item"));
-                //driver.Navigate().Refresh();
-                mainPage.Refresh();
-                //wait.Until(ExpectedConditions.StalenessOf(item));
+                Click(By.Name("remove_cart_item"));                
+                mainPage.Refresh();                
                 mainPage.WaitStalenessOf(item);
             }
         }
@@ -440,21 +437,28 @@ namespace SeleniumTests
         public void Test_CountryEditLinksNewWindow()
         {
             LoginAdminPart();
-
+            List<ICollection<string>> windowsId = new List<ICollection<string>>();
+            
             var uls = driver.FindElement(By.Id("box-apps-menu"));
             Sleep(1000);
             var lis = uls.FindElements(By.Id("app-"));
             lis[2].Click();
             driver.FindElement(By.LinkText("Add New Country")).Click();
             string mainCountryWindow = driver.CurrentWindowHandle;
-            ICollection<string> oldWindows = driver.WindowHandles;
+            var oldWindows = driver.WindowHandles;
+            windowsId.Add(oldWindows);
             var links = driver.FindElements(By.XPath("//*[@id='content']/form/table[1]/tbody/tr/td/a/i[1]"));
 
             for (int i = 0; i < links.Count; i++)
             {
                 links[i].Click();
-                //String newWindow = wait.Until(ThereIsWindowOtherThan(oldWindows));
-                //driver.SwitchTo().Window(newWindow);
+                ICollection<string> oldWindows1 = driver.WindowHandles;
+                windowsId.Add(oldWindows1); 
+                var secondWindow = windowsId[1];
+                
+                driver.SwitchTo().Window(secondWindow.ToString());
+                wait.Until(ExpectedConditions.PresenceOfAllElementsLocatedBy(By.CssSelector("h1")));
+
                 driver.Close();
                 driver.SwitchTo().Window(mainCountryWindow);
             }
