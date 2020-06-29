@@ -417,9 +417,11 @@ namespace SeleniumTests
             for (int i = 1; i <= 3; i++)
             {
                 AddProductToCartMainPage(baseURL);
-                wait.Until(d => d.FindElement(ProductPage.Quantity).Text.Contains(i.ToString()));
+                mainPage.WaitUntil(i.ToString());
+                //wait.Until(d => d.FindElement(ProductPage.Quantity).Text.Contains(i.ToString()));
             }
-            var checkout = wait.Until(d => d.FindElement(BasketPage.CheckOut));
+            //var checkout = wait.Until(d => d.FindElement(BasketPage.CheckOut));
+            var checkout = mainPage.WaitUntil(BasketPage.CheckOut);
             checkout.Click();
 
             var tableTrs = basketPage.GetTrs();
@@ -427,8 +429,10 @@ namespace SeleniumTests
             foreach (var item in tableTrs)
             {
                 Click(By.Name("remove_cart_item"));
-                driver.Navigate().Refresh();
-                wait.Until(ExpectedConditions.StalenessOf(item));
+                //driver.Navigate().Refresh();
+                mainPage.Refresh();
+                //wait.Until(ExpectedConditions.StalenessOf(item));
+                mainPage.WaitStalenessOf(item);
             }
         }
 
@@ -477,27 +481,6 @@ namespace SeleniumTests
                 driver.Navigate().GoToUrl("http://localhost:8080/litecart/admin/?app=catalog&doc=catalog&category_id=1");
             }
         }
-
-
-        //Сценарий должен состоять из следующих частей:
-        //1) зайти в админку
-        //2) открыть каталог, категорию, которая содержит товары(страница http://localhost/litecart/admin/?app=catalog&doc=catalog&category_id=1)
-        //3) последовательно открывать страницы товаров и проверять, не появляются ли в логе браузера сообщения(любого уровня)
-
-
-        //public ExpectedConditions ThereIsWindowOtherThan(ICollection<string> oldWindows)
-        //{
-        //    var s = Apply(driver, oldWindows);
-
-        //    return new ExpectedConditions(s);
-        //}
-
-        //public string Apply(IWebDriver driver, ICollection<string> oldWindows)
-        //{
-        //    ICollection<String> handles = driver.WindowHandles;
-        //    handles.RemoveAll(oldWindows);
-        //    return handles.Count > 0 ? handles;
-        //}
 
         private void AddProductToCart()
         {

@@ -31,5 +31,39 @@ namespace SeleniumWebDriverTraining
             addToCartButton.Click();
         }
 
+        public void WaitUntil(string i)
+        {
+            wait.Until(d => d.FindElement(ProductPage.Quantity).Text.Contains(i.ToString()));
+        }
+
+        public IWebElement WaitUntil(By locator)
+        {
+            return wait.Until(d => d.FindElement(locator));
+        }
+
+        public void Refresh()
+        {
+            driver.Navigate().Refresh();
+        }
+
+        public void WaitStalenessOf(IWebElement item)
+        {
+            wait.Until(ExpectedConditions.StalenessOf(item));
+        }
+
+        public IWebElement WaitUntilClickable(By locator)
+        {
+            wait = new WebDriverWait(driver, new TimeSpan(0, 0, 10));
+            wait.Message = "Element with locator '" + locator + "' was not clickable in 10 seconds";
+            return wait.Until(SeleniumExtras.WaitHelpers.ExpectedConditions.ElementToBeClickable(locator));
+        }
+
+        public void WaitUntilVisible(By locator)
+        {
+            wait = new WebDriverWait(driver, new TimeSpan(0, 0, 10));
+            wait.Message = "Element with locator '" + locator + "' was not visible in 10 seconds";
+            wait.Until(SeleniumExtras.WaitHelpers.ExpectedConditions.ElementIsVisible(locator));
+        }
+
     }
 }
