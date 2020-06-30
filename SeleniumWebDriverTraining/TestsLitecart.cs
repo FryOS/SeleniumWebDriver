@@ -427,7 +427,7 @@ namespace SeleniumTests
 
             foreach (var item in tableTrs)
             {
-                Click(By.Name("remove_cart_item"));                
+                Click(BasketPage.RemoveCartItem);                
                 mainPage.Refresh();                
                 mainPage.WaitStalenessOf(item);
             }
